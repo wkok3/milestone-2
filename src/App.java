@@ -378,7 +378,16 @@ public class App {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				// TODO Auto-generated method stub
-
+				
+				Point p = SwingUtilities.convertPoint(mv, e.getPoint(), mv);
+				mv.points.add(p);
+				Result result = recog.recognize(mv.points);
+				System.out.println("\nGot result: " + result.getName());
+				System.out.println("\tScore=" + result.getScore());
+				System.out.println("\tBounding Box =" + result.getBoundingBox());
+//				updateStatus(result);
+//				this.lastResult = result;
+				mv.repaint();
 			}
 
 			@Override

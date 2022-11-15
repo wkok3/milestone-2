@@ -358,14 +358,14 @@ public class MusicView extends JComponent {
 		g.setColor(Color.black);
 		Graphics2D g2 = (Graphics2D) g;
 		if (g != null && points != null) {
-			System.out.println("in loop" + "points size" + points.size());
+//			System.out.println("in loop " + "points size" + points.size());
 			for (int i = 0; i < points.size() - 1; i++) {
 				Point2D p1 = points.get(i);
 				Point2D p2 = points.get(i + 1);
 				g2.setStroke(new BasicStroke(4));
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				g.drawLine((int) p1.getX(), (int) p1.getY(), (int) p2.getX(), (int) p2.getY());
-				System.out.println(p1.getX() + " " + p1.getY()+ p2.getX() + " " + p2.getY());
+//				System.out.println(p1.getX() + " " + p1.getY()+ p2.getX() + " " + p2.getY());
 			}
 		}
 	}
