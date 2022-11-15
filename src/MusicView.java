@@ -1,10 +1,17 @@
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JComponent;
+
+import dollar.Result;
 
 public class MusicView extends JComponent {
 
@@ -17,7 +24,9 @@ public class MusicView extends JComponent {
 	double staveSizedSpacesOnMusicView;
 	double oneStaffSpaceHeight;
 	boolean selected = false;
-	
+	Result lastResult;
+	Point point;
+	 ArrayList<Point2D> points;
 
 	public MusicView(int mvHeight, int numStaves) {
 		this.mvHeight = mvHeight;
@@ -133,29 +142,28 @@ public class MusicView extends JComponent {
 			Note n = new Note(duration, xPos, yPos);
 			notes.add(n);
 //			return n.noteImage;
-			
 
-			//Get note's pitch
+			// Get note's pitch
 			for (Note n1 : notes) {
 				for (Staff s : staves) {
 					String pitch = s.getPitch(n1.yPosClicked);
 					if (pitch != null) {
-						//The note might be located at invalid 
-						//coordinates for the last stave, but a valid one 
-						//for another, thus don't let it be assigned null
-						//unless the user put the note at a place invalid even for the  
-						//last stave.
+						// The note might be located at invalid
+						// coordinates for the last stave, but a valid one
+						// for another, thus don't let it be assigned null
+						// unless the user put the note at a place invalid even for the
+						// last stave.
 						n1.pitch = pitch;
 					}
 
 				}
 			}
-			
+
 			this.revalidate();
 			this.repaint();
-			//return pitch of new note added
+			// return pitch of new note added
 			return n.pitch;
-			
+
 		} else {
 			Rest r = new Rest(duration, xPos, yPos);
 			rests.add(r);
@@ -165,10 +173,7 @@ public class MusicView extends JComponent {
 
 			return null;
 		}
-		
-		
-		
-		
+
 //		System.out.println("pitch: " + notes.get(notes.size() - 1).pitch);
 //		this.revalidate();
 //		this.repaint();
@@ -180,7 +185,7 @@ public class MusicView extends JComponent {
 	public String dragSymbol(int xPos, int yPos, String symbolType) {
 		// TODO Auto-generated method stub
 //		Note latestNote = notes.get(notes.size() - 1);
-		
+
 		if (symbolType == "note") {
 			Note latestNote = noteSelected(xPos, yPos);
 			latestNote.xPosClicked = xPos;
@@ -188,7 +193,7 @@ public class MusicView extends JComponent {
 //			System.out.println("dragged before set note: " + latestNote.dragged);
 			latestNote.dragged = true;
 
-			//Update current pitch of dragged Note 
+			// Update current pitch of dragged Note
 			boolean setAfterDragging = false;
 			for (Staff s : staves) {
 				String pitch = s.getPitch(latestNote.yPosClicked);
@@ -197,70 +202,63 @@ public class MusicView extends JComponent {
 					latestNote.pitch = pitch;
 				}
 			}
-			if(!setAfterDragging) {
+			if (!setAfterDragging) {
 				latestNote.pitch = null;
 			}
-			
+
 //			System.out.println("dragged: " + latestNote.dragged);
 			this.revalidate();
 			this.repaint();
-			
+
 			return latestNote.pitch;
-			
-			
-		}else if (symbolType == "rest") {
-			Rest latestRest= restSelected(xPos, yPos);
+
+		} else if (symbolType == "rest") {
+			Rest latestRest = restSelected(xPos, yPos);
 			latestRest.xPos = xPos;
-			latestRest.yPos= yPos;
+			latestRest.yPos = yPos;
 //			System.out.println("dragged before set: " + latestRest.dragged);
 			latestRest.dragged = true;
-			
+
 			this.revalidate();
 			this.repaint();
 			return null;
 		}
 		return null;
-		
-		
-		
+
 	}
 
 	public String checkSymbolSelected(int xPos, int yPos) {
-		
+
 		if (noteSelected(xPos, yPos) == null && restSelected(xPos, yPos) == null) {
 			return "none";
 		}
-		if(noteSelected(xPos, yPos)!= null) {
+		if (noteSelected(xPos, yPos) != null) {
 			return "note";
 		}
-		if(restSelected(xPos, yPos)!= null) {
+		if (restSelected(xPos, yPos) != null) {
 			return "rest";
 		}
-		
-		
-		
+
 		revalidate();
 		repaint();
 		return null;
 	}
-	
-	
+
 	public Note noteSelected(int xPos, int yPos) {
-		
-		
-		for (Rest r: rests) {
-			//make sure when clicking outside of previously
-			//selected rest, will deselect them. Also deselects
-			//previous rest when selecting new rest.
+
+		for (Rest r : rests) {
+			// make sure when clicking outside of previously
+			// selected rest, will deselect them. Also deselects
+			// previous rest when selecting new rest.
 			r.selected = false;
 		}
-		for (Note n: notes) {
-			//make sure when clicking outside of previously
-			//selected note, will deselect them. Also deselects
-			//previous note when selecting new note.
+		for (Note n : notes) {
+			// make sure when clicking outside of previously
+			// selected note, will deselect them. Also deselects
+			// previous note when selecting new note.
 			n.selected = false;
 		}
-		
+
 		for (Note n : notes) {
 			if (n.bounds_x == null) {
 				return null;
@@ -281,23 +279,22 @@ public class MusicView extends JComponent {
 		}
 		return null;
 	}
-	
+
 	public Rest restSelected(int xPos, int yPos) {
-		for (Rest r: rests) {
-			//make sure when clicking outside of previously
-			//selected rest, will deselect them. Also deselects
-			//previous rest when selecting new rest.
+		for (Rest r : rests) {
+			// make sure when clicking outside of previously
+			// selected rest, will deselect them. Also deselects
+			// previous rest when selecting new rest.
 			r.selected = false;
 		}
-		
-		
-		for (Note n: notes) {
-			//make sure when clicking outside of previously
-			//selected note, will deselect them. Also deselects
-			//previous note when selecting new note.
+
+		for (Note n : notes) {
+			// make sure when clicking outside of previously
+			// selected note, will deselect them. Also deselects
+			// previous note when selecting new note.
 			n.selected = false;
 		}
-		
+
 		for (Rest r : rests) {
 			if (r.bounds_x == null) {
 				return null;
@@ -318,9 +315,9 @@ public class MusicView extends JComponent {
 		}
 		return null;
 	}
-	
+
 	public void deleteSymbol() {
-		for(int i = 0; i<notes.size(); i++) {
+		for (int i = 0; i < notes.size(); i++) {
 			if (notes.get(i).selected == true) {
 				notes.remove(i);
 				revalidate();
@@ -328,7 +325,7 @@ public class MusicView extends JComponent {
 				return;
 			}
 		}
-		for(int i = 0; i<rests.size(); i++) {
+		for (int i = 0; i < rests.size(); i++) {
 			if (rests.get(i).selected == true) {
 				rests.remove(i);
 				revalidate();
@@ -336,8 +333,7 @@ public class MusicView extends JComponent {
 				return;
 			}
 		}
-		
-		
+
 	}
 
 	@Override
@@ -352,13 +348,26 @@ public class MusicView extends JComponent {
 			s.paint(g);
 		}
 
-		for (Note note : notes) {
-			note.paint(g);
-		}
-		for (Rest rest : rests) {
-			rest.paint(g);
-		}
+//		for (Note note : notes) {
+//			note.paint(g);
+//		}
+//		for (Rest rest : rests) {
+//			rest.paint(g);
+//		}
 
+		g.setColor(Color.black);
+		Graphics2D g2 = (Graphics2D) g;
+		if (g != null && points != null) {
+			System.out.println("in loop" + "points size" + points.size());
+			for (int i = 0; i < points.size() - 1; i++) {
+				Point2D p1 = points.get(i);
+				Point2D p2 = points.get(i + 1);
+				g2.setStroke(new BasicStroke(4));
+				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				g.drawLine((int) p1.getX(), (int) p1.getY(), (int) p2.getX(), (int) p2.getY());
+				System.out.println(p1.getX() + " " + p1.getY()+ p2.getX() + " " + p2.getY());
+			}
+		}
 	}
 
 	public List<double[]> getYStartPosAndHeight() {
@@ -421,6 +430,33 @@ public class MusicView extends JComponent {
 //			}
 //		}
 
+	}
+
+	public void renderUserStroke(ArrayList<Point2D> points, Point p, Result lastResult) {
+		// TODO Auto-generated method stub
+		System.out.println("point p: " + p);
+		this.points = points;
+		this.point= p;
+		this.lastResult = lastResult;
+		revalidate();
+		repaint();
+		
+//		points = test.getPoints();
+//		Graphics2D g2 = (Graphics2D) g;
+
+		// get the last template result we matched, if there was one.
+//		Result result = test.getLastResult();
+//
+//		if (points == null)
+//			return;
+//
+//		for (int i = 0; i < points.size() - 1; i++) {
+//			Point2D p1 = points.get(i);
+//			Point2D p2 = points.get(i + 1);
+//			g2.setStroke(new BasicStroke(4));
+//			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//			g.drawLine((int) p1.getX(), (int) p1.getY(), (int) p2.getX(), (int) p2.getY());
+//		}
 	}
 
 }

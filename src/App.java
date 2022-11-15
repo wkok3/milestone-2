@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -8,12 +9,15 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -26,8 +30,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
 
-public class App {
+import dollar.DollarRecognizer;
+import dollar.Result;
 
+public class App {
+	
 	private static void createAndShowGUI() {
 		JMenuBar menuBar;
 		JMenu menu;
@@ -46,6 +53,19 @@ public class App {
 		frame.setSize(600, 500);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+		// Related to Recognizer
+		ArrayList<Point2D> points = null;
+		DollarRecognizer recog = new DollarRecognizer();
+		JLabel status;
+		JComboBox<String> combo;
+		Result lastResult = null;
+		// private Canvas panel;
+		final String[] templateStrings = { "triangle", "x", "rectangle", "circle", "check", "caret",
+				"zig-zag", "arrow", "left square bracket", "right square bracket", "v", "delete", "left curly brace",
+				"right curly brace", "star", "pigtail", "flat", "half note", "quarter note", "eighth note",
+				"sixteenth note", "half rest", "eighth rest", "sixteenth rest" };
+
+		
 		/**
 		 * Menus
 		 */
@@ -384,6 +404,19 @@ public class App {
 					}
 
 				}
+				
+				
+				// translate to canvas coordinate system
+				ArrayList<Point2D> points = null;
+				points = new ArrayList<Point2D>();
+				// translate to canvas coordinate system
+				Point p = SwingUtilities.convertPoint(mv, e.getPoint(), mv);
+				points.add(p);
+				Result lastResult = null;
+				lastResult = null;
+				mv.renderUserStroke(points, p, lastResult);
+				
+//				mv.repaint();
 
 			}
 
@@ -432,6 +465,10 @@ public class App {
 						statusBarLabel.setText("Not within range of a pitch");
 					}
 				}
+				
+				Point p = SwingUtilities.convertPoint(mv, e.getPoint(), mv);
+				mv.points.add(p);
+				mv.repaint();
 
 			}
 		});
